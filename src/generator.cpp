@@ -2,6 +2,7 @@
 #include <sstream>
 
 #include "regex/regex_lexer.h"
+#include "regex/regex_parser.h"
 
 int main() {
     std::stringstream to_parse("([A-Z])\\w+\\?");
