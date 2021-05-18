@@ -1,6 +1,7 @@
 #pragma once
 
 #include "regex_lexer.h"
+#include "ast.h"
 
 namespace regex {
     class regex_parser {
