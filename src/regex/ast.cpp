@@ -43,16 +43,30 @@ option_branch::~option_branch() {
 
 
 
-quantifier_branch::quantifier_branch() {
+quantifier_branch::quantifier_branch(branch* child, const size_t min, const size_t max, const bool limited)
+ : branch(), child(child), min(min), max(max), limited(limited) {
 
+}
+
+size_t quantifier_branch::get_minimum() {
+    return this->min;
+}
+
+size_t quantifier_branch::get_maximum() {
+    return this->max;
+}
+
+bool quantifier_branch::is_limited() {
+    return this->limited;
 }
 
 std::string quantifier_branch::to_string() {
-
+    if(!this->limited) return "Quantifier{min: " + std::to_string(this->min) + ", max: NO LIMIT" + ", obj: " + this->child->to_string() + "}";
+    return "Quantifier{min: " + std::to_string(this->min) + ", max: " + std::to_string(this->max) + ", obj: " + this->child->to_string() + "}";
 }
 
 quantifier_branch::~quantifier_branch() {
-
+    if(this->child) delete this->child;
 }
 
 
