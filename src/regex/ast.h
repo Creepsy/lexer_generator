@@ -13,22 +13,25 @@ namespace ast {
             virtual ~branch();
     };
 
-    class option_branch : public branch {
+    class sequence_branch : public branch {
         private:
-            std::vector<branch*> options;
-        public:
-            option_branch();
-            option_branch(const option_branch& other) = delete;
-            option_branch(option_branch&& other) = delete;
-            option_branch(std::vector<branch*>& options);
+            const bool option;
 
-            void add_option(branch* option);
+            std::vector<branch*> elements;
+        public:
+            sequence_branch(const bool option);
+            sequence_branch(const sequence_branch& other) = delete;
+            sequence_branch(sequence_branch&& other) = delete;
+            sequence_branch(std::vector<branch*>& elements, const bool option);
+
+            void add_element(branch* element);
+            bool is_option();
             std::string to_string() override;
 
-            ~option_branch();
+            ~sequence_branch();
 
-            option_branch& operator=(const option_branch& other) = delete;
-            option_branch& operator=(option_branch&& other) = delete;
+            sequence_branch& operator=(const sequence_branch& other) = delete;
+            sequence_branch& operator=(sequence_branch&& other) = delete;
     };
     
     class quantifier_branch : public branch {
@@ -54,14 +57,6 @@ namespace ast {
 
             quantifier_branch& operator=(const quantifier_branch& other) = delete;
             quantifier_branch& operator=(quantifier_branch&& other) = delete;
-    };
-
-    class sequence_branch : public branch {
-        private:
-        public:
-            sequence_branch();
-            std::string to_string() override;
-            ~sequence_branch();
     };
 
     class character_branch : public branch {

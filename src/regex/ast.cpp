@@ -12,32 +12,36 @@ branch::~branch() {
 
 
 
-option_branch::option_branch() : branch() {
+sequence_branch::sequence_branch(bool option) : branch(), option(option) {
 
 }
 
-option_branch::option_branch(std::vector<branch*>& options) : branch(), options(options) {
+sequence_branch::sequence_branch(std::vector<branch*>& elements, bool is_option) : branch(), elements(elements), option(option) {
 
 }
 
-void option_branch::add_option(branch* option) {
-    this->options.push_back(option);
+void sequence_branch::add_element(branch* element) {
+    this->elements.push_back(element);
 }
 
-std::string option_branch::to_string() {
-    std::string as_str = "Option{";
+bool sequence_branch::is_option() {
+    return this->option;
+}
 
-    for(size_t o = 0; o < this->options.size(); o++) {
+std::string sequence_branch::to_string() {
+    std::string as_str = (this->option) ? "Option{" : "Sequence{";
+
+    for(size_t o = 0; o < this->elements.size(); o++) {
         if(o != 0) as_str += ", ";
-        as_str += this->options[o]->to_string();
+        as_str += this->elements[o]->to_string();
     }
 
     return as_str + "}";
 }
 
-option_branch::~option_branch() {
-    for(branch* option : this->options) {
-        if(option) delete option;
+sequence_branch::~sequence_branch() {
+    for(branch* element : this->elements) {
+        if(element) delete element;
     }
 }
 
@@ -67,19 +71,6 @@ std::string quantifier_branch::to_string() {
 
 quantifier_branch::~quantifier_branch() {
     if(this->child) delete this->child;
-}
-
-
-
-sequence_branch::sequence_branch() {
-
-}
-std::string sequence_branch::to_string() {
-    
-}
-
-sequence_branch::~sequence_branch() {
-
 }
 
 
