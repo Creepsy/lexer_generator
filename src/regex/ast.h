@@ -60,10 +60,24 @@ namespace ast {
 
     class character_range_branch : public branch {
         private:
+            const char begin;
+            const char end;
+
+            const bool negated;
         public:
-            character_range_branch();
+            character_range_branch(const char begin, const char end, bool negated);
+            character_range_branch(const character_range_branch& other) = delete;
+            character_range_branch(character_range_branch&& other) = delete;
+
+            bool is_negated();
+            char get_begin();
+            char get_end();
             std::string to_string() override;
+
             ~character_range_branch();
+
+            character_range_branch& operator=(const character_range_branch& other) = delete;
+            character_range_branch& operator=(character_range_branch&& other) = delete;
     };
 
     class character_set_branch : public branch {
@@ -75,6 +89,7 @@ namespace ast {
             character_set_branch(const character_set_branch& other) = delete;
             character_set_branch(character_set_branch&& other) = delete;
 
+            bool is_negated();
             const std::vector<char>& get_characters();
             std::string to_string() override;
 

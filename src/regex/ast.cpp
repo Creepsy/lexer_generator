@@ -75,8 +75,38 @@ quantifier_branch::~quantifier_branch() {
 
 
 
+character_range_branch::character_range_branch(const char begin, const char end, bool negated) : begin(begin), end(end), negated(negated) {
+
+}
+
+bool character_range_branch::is_negated() {
+    return this->negated;
+}
+
+char character_range_branch::get_begin() {
+    return this->begin;
+}
+
+char character_range_branch::get_end() {
+    return this->end;
+}
+
+std::string character_range_branch::to_string() {
+    return "Character_Range{neg: " + std::to_string(this->negated) + ", begin: " + this->begin + ", end: " + this->end + "}";
+}
+
+character_range_branch::~character_range_branch() {
+
+}
+
+
+
 character_set_branch::character_set_branch(const std::vector<char>& characters, const bool negated) : branch(), characters(characters), negated(negated) {
 
+}
+
+bool character_set_branch::is_negated() {
+    return this->negated;
 }
 
 const std::vector<char>& character_set_branch::get_characters() {
