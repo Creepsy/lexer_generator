@@ -75,14 +75,21 @@ quantifier_branch::~quantifier_branch() {
 
 
 
-character_branch::character_branch() {
+character_set_branch::character_set_branch(const std::vector<char>& characters, const bool negated) : branch(), characters(characters), negated(negated) {
 
 }
 
-std::string character_branch::to_string() {
-
+const std::vector<char>& character_set_branch::get_characters() {
+    return this->characters;
 }
 
-character_branch::~character_branch() {
-    
+std::string character_set_branch::to_string() {
+    std::string as_str = "Character_Set{neg: " + std::to_string(this->negated) + ", chars: ";
+
+    for(const char c : this->characters) as_str += c;
+
+    return as_str + "}";
+}
+
+character_set_branch::~character_set_branch() {
 }

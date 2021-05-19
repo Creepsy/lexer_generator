@@ -15,9 +15,8 @@ namespace ast {
 
     class sequence_branch : public branch {
         private:
-            const bool option;
-
             std::vector<branch*> elements;
+            const bool option;
         public:
             sequence_branch(const bool option);
             sequence_branch(const sequence_branch& other) = delete;
@@ -59,11 +58,29 @@ namespace ast {
             quantifier_branch& operator=(quantifier_branch&& other) = delete;
     };
 
-    class character_branch : public branch {
+    class character_range_branch : public branch {
         private:
         public:
-            character_branch();
+            character_range_branch();
             std::string to_string() override;
-            ~character_branch();
+            ~character_range_branch();
+    };
+
+    class character_set_branch : public branch {
+        private:
+            std::vector<char> characters;
+            const bool negated;
+        public:
+            character_set_branch(const std::vector<char>& characters, const bool negated);
+            character_set_branch(const character_set_branch& other) = delete;
+            character_set_branch(character_set_branch&& other) = delete;
+
+            const std::vector<char>& get_characters();
+            std::string to_string() override;
+
+            ~character_set_branch();
+
+            character_set_branch& operator=(const character_set_branch& other) = delete;
+            character_set_branch& operator=(character_set_branch&& other) = delete;
     };
 }
