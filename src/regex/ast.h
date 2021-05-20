@@ -5,6 +5,11 @@
 #include <cstddef>
 
 namespace ast {
+    struct char_range {
+        char start;
+        char end;
+    };
+
     class branch {
         private:
         public:
@@ -58,32 +63,16 @@ namespace ast {
             quantifier_branch& operator=(quantifier_branch&& other) = delete;
     };
 
-    class character_range_branch : public branch {
-        private:
-            const char begin;
-            const char end;
-
-            const bool negated;
-        public:
-            character_range_branch(const char begin, const char end, bool negated);
-
-            bool is_negated();
-            char get_begin();
-            char get_end();
-            std::string to_string() override;
-
-            ~character_range_branch();
-    };
-
     class character_set_branch : public branch {
         private:
-            std::vector<char> characters;
+            std::vector<char_range> characters;
             const bool negated;
         public:
-            character_set_branch(const std::vector<char>& characters, const bool negated);
+            character_set_branch(const std::vector<char_range>& characters, const bool negated);
             
             bool is_negated();
-            const std::vector<char>& get_characters();
+            void add_character_range(const char_range range);
+            const std::vector<char_range>& get_characters();
             std::string to_string() override;
 
             ~character_set_branch();
