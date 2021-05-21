@@ -101,7 +101,7 @@ const std::vector<char_range>& character_set_branch::get_characters() {
 }
 
 std::string character_set_branch::to_string() {
-    std::string as_str = "Character_Set{chars: ";
+    std::string as_str = "Character_Set{neg: " + std::to_string(this->negated) + ", chars: ";
 
     for(const char_range c : this->characters) {
         if(c.negated) as_str += "!";
