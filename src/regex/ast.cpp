@@ -75,13 +75,17 @@ quantifier_branch::~quantifier_branch() {
 
 
 
-character_set_branch::character_set_branch() : branch(), characters() {
+character_set_branch::character_set_branch(const std::vector<char_range>& characters, const bool negated)
+ : branch(), characters(characters), negated(negated) {
 
 }
 
-character_set_branch::character_set_branch(const std::vector<char_range>& characters)
- : branch(), characters(characters) {
+character_set_branch::character_set_branch(const bool negated) : branch(), characters(), negated(negated) {
 
+}
+
+bool character_set_branch::is_negated() {
+    return this->negated;
 }
 
 void character_set_branch::add_character_range(const char_range range) {

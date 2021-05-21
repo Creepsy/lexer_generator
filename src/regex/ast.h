@@ -68,10 +68,13 @@ namespace ast {
     class character_set_branch : public branch {
         private:
             std::vector<char_range> characters;
-        public:
-            character_set_branch();
-            character_set_branch(const std::vector<char_range>& characters);
             
+            const bool negated;
+        public:
+            character_set_branch(const std::vector<char_range>& characters, const bool negated);
+            character_set_branch(const bool negated);
+            
+            bool is_negated();
             void add_character_range(const char_range range);
             void add_character_ranges(const std::vector<char_range>& characters);
             const std::vector<char_range>& get_characters();
