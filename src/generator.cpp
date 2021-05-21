@@ -5,13 +5,19 @@
 #include "regex/regex_parser.h"
 
 int main() {
-    std::stringstream to_parse("([A-Z])\\w+\\?");
+    std::stringstream to_parse("[^a-hklq\\W]");
 
     regex::regex_lexer lexer(to_parse);
+    regex::regex_parser parser(lexer);
 
-    while(lexer.good()) {
+    ast::branch* out = parser.parse_regex();
+    std::cout << out->to_string() << std::endl;
+
+    delete out;
+
+    /*while(lexer.good()) {
         std::cout << lexer.next_token() << std::endl;
-    }
+    }*/
 
     return 0;
 }
