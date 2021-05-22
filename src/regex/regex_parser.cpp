@@ -130,7 +130,15 @@ ast::branch* regex_parser::parse_quantifier() {
 }
 
 ast::branch* regex_parser::parse_group() {
-   // ast::branch* character_set = this->parse_character_set();
+    if(this->accept(token::BRACKET_OPEN)) {
+        this->next();
+        ast::branch* group = this->parse_option();
+        this->expect(token::BRACKET_CLOSE);
+        this->next();
+        return group;
+    }
+
+    return this->parse_character();
 }
 
 ast::branch* regex_parser::parse_character() {
