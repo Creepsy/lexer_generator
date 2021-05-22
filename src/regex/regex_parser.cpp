@@ -1,6 +1,7 @@
 #include "regex_parser.h"
 
 #include <stdexcept>
+#include <cstddef>
 
 using namespace regex;
 
@@ -15,6 +16,7 @@ const std::vector<token::token_type> SPECIAL_CHARACTERS {
 };
 
 regex_parser::regex_parser(regex_lexer& lexer) : lexer(lexer) {
+    this->nxt = this->lexer.next_token();
     this->next();
 }
 
@@ -23,7 +25,7 @@ ast::branch* regex_parser::parse_regex() {
 
     return this->parse_option();*/
     
-    return this->parse_character();
+    return this->parse_quantifier();
 }
 
 regex_parser::~regex_parser() {
@@ -32,7 +34,8 @@ regex_parser::~regex_parser() {
 // private
 
 void regex_parser::next() {
-    this->curr = this->lexer.next_token();
+    this->curr = this->nxt;
+    this->nxt = this->lexer.next_token();
 }
 
 bool regex_parser::accept(const std::vector<token::token_type>& types) {
@@ -55,6 +58,7 @@ void regex_parser::expect(const std::vector<token::token_type>& types) {
 }
 
 ast::branch* regex_parser::parse_option() {
+    return this->parse_quantifier();
    // ast::branch* sequence = this->parse_sequence();
 }
 
@@ -63,7 +67,66 @@ ast::branch* regex_parser::parse_sequence() {
 }
 
 ast::branch* regex_parser::parse_quantifier() {
-   // ast::branch* character_set = this->parse_group();
+    ast::branch* child = this->parse_group();
+
+    if(this->accept(std::vector<token::token_type>{token::PLUS, token::STAR, token::QMARK})) {
+        size_t min, max;
+        bool limited = false;
+        switch(this->curr.type) {
+            case token::PLUS:
+                min = 1;
+                max = 1;
+                break;
+            case token::STAR:
+                min = 0;
+                max = 0;
+                break;
+            case token::QMARK:
+                min = 0;
+                max = 1;
+                limited = true;
+                break;
+        }
+
+        this->next();
+        return new ast::quantifier_branch(child, min, max, limited);
+    } else if(this->accept(token::BRACE_OPEN) && this->nxt.type == token::CHAR && std::isdigit(this->nxt.identifier[0])) {
+        this->next();
+        if(this->curr.identifier.size() != 1) throw std::runtime_error("Invalid character!");
+        size_t begin = this->curr.identifier[0] - '0';
+    
+        this->next();
+
+        ast::quantifier_branch* quantifier;
+        if(this->accept(token::COMMA)) {
+            this->next();
+
+            if(this->accept(token::CHAR)) {
+                if(this->curr.identifier.size() != 1) throw std::runtime_error("Invalid character!");
+                if(std::isdigit(this->curr.identifier[0])) {
+                    size_t end = this->curr.identifier[0] - '0';
+                    this->next();
+
+                    if(end < begin) throw std::runtime_error("Invalid range!");
+                    
+                    quantifier = new ast::quantifier_branch(child, begin, end);
+                } else {
+                    quantifier = new ast::quantifier_branch(child, begin, begin, false);
+                }
+            } else {
+                quantifier = new ast::quantifier_branch(child, begin, begin, false);
+            }
+        } else {
+            quantifier = new ast::quantifier_branch(child, begin, begin);
+        }
+
+        this->expect(token::BRACE_CLOSE);
+        this->next();
+
+        return quantifier;
+    }
+
+    return child;
 }
 
 ast::branch* regex_parser::parse_group() {

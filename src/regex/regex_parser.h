@@ -10,6 +10,7 @@ namespace regex {
         private:
             regex_lexer& lexer;
             token curr;
+            token nxt;
 
             void next();
             bool accept(const std::vector<token::token_type>& types);
