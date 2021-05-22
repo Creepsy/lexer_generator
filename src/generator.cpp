@@ -5,7 +5,7 @@
 #include "regex/regex_parser.h"
 
 int main() {
-    std::stringstream to_parse("((([^a-hklq\\W]))?){6,}");
+    std::stringstream to_parse("([^abc]d | d[abc])HI|  ABC\\D?  ");
 
     regex::regex_lexer lexer(to_parse);
     regex::regex_parser parser(lexer);

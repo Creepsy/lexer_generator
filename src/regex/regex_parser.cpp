@@ -21,11 +21,9 @@ regex_parser::regex_parser(regex_lexer& lexer) : lexer(lexer) {
 }
 
 ast::branch* regex_parser::parse_regex() {
-   /* if(this->lexer.fail()) return nullptr;
+    if(this->lexer.fail()) return nullptr;
 
-    return this->parse_option();*/
-    
-    return this->parse_quantifier();
+    return this->parse_option();
 }
 
 regex_parser::~regex_parser() {
@@ -58,12 +56,36 @@ void regex_parser::expect(const std::vector<token::token_type>& types) {
 }
 
 ast::branch* regex_parser::parse_option() {
-    return this->parse_quantifier();
-   // ast::branch* sequence = this->parse_sequence();
+    ast::branch* first = this->parse_sequence();
+
+    if(this->accept(token::OR)) {
+        ast::sequence_branch* option = new ast::sequence_branch(true);
+        option->add_element(first);
+        while(this->accept(std::vector<token::token_type>{token::OR})) {
+            this->next();
+            option->add_element(this->parse_sequence());
+        }
+
+        return option;
+    }
+
+    return first;
 }
 
 ast::branch* regex_parser::parse_sequence() {
-   // ast::branch* quantifer = this->parse_quantifier();
+    ast::branch* first = this->parse_quantifier();
+
+    if(!this->accept(std::vector<token::token_type>{token::OR, token::UNDEFINED, token::END_OF_FILE, token::BRACKET_CLOSE})) {
+        ast::sequence_branch* sequence = new ast::sequence_branch(false);
+        sequence->add_element(first);
+        while(!this->accept(std::vector<token::token_type>{token::OR, token::UNDEFINED, token::END_OF_FILE, token::BRACKET_CLOSE})) {
+            sequence->add_element(this->parse_quantifier());
+        }
+
+        return sequence;
+    }
+   
+    return first;
 }
 
 ast::branch* regex_parser::parse_quantifier() {
@@ -181,6 +203,13 @@ ast::branch* regex_parser::parse_character_set() {
             this->next();
             if(this->accept(token::MINUS)) {
                 this->next();
+
+                if(this->accept(token::SQBRACKET_CLOSE)) {
+                    set->add_character_range(ast::char_range{c, c});
+                    set->add_character_range(ast::char_range{'-', '-'});
+                    break;
+                }
+
                 if(this->curr.identifier.size() != 1) throw std::runtime_error("Invalid character!");
                 char end = this->curr.identifier[0];
                 this->next();
@@ -214,13 +243,13 @@ std::vector<ast::char_range> regex_parser::parse_special_character() {
         case token::DIGIT:
         case token::NDIGIT:
             {
-                bool neg = !(this->curr.type == token::WORD);
+                bool neg = !(this->curr.type == token::DIGIT);
                 return std::vector<ast::char_range> {ast::char_range{'0', '9', neg}};
             }
         case token::WSPACE:
         case token::NWSPACE:
             {
-                bool neg = !(this->curr.type == token::WORD);
+                bool neg = !(this->curr.type == token::WSPACE);
                 return std::vector<ast::char_range> {
                     ast::char_range{' ', ' ', neg}, ast::char_range{'\t', '\t', neg}, ast::char_range{'\r', '\r', neg},
                     ast::char_range{'\n', '\n', neg}, ast::char_range{'\v', '\v', neg}, ast::char_range{'\f', '\f', neg}
