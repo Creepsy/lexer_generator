@@ -3,6 +3,7 @@
 
 #include "regex/regex_lexer.h"
 #include "regex/regex_parser.h"
+#include "nfa.h"
 
 int main() {
     std::stringstream to_parse("([^abc]d | d[abc])HI|  ABC\\D?  ");
