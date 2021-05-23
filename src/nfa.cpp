@@ -77,7 +77,10 @@ nfa nfa::from_token_rules(const std::vector<std::pair<std::string, ast::branch*>
     size_t origin_node = automaton.add_node();
 
     for(const std::pair<std::string, ast::branch*>& rule : rules) {
-        size_t end_node = nfa::insert_branch(automaton, rule.second, origin_node);
+        size_t branch_node = automaton.add_node();
+        automaton.add_connection(origin_node, branch_node);
+        
+        size_t end_node = nfa::insert_branch(automaton, rule.second, branch_node);
         
         size_t root_node = automaton.add_node(rule.first);
         automaton.add_connection(end_node, root_node);
@@ -111,7 +114,10 @@ size_t nfa::insert_option(nfa& automaton, ast::sequence_branch* b, const size_t 
     std::vector<size_t> roots;
 
     for(ast::branch* option : b->get_elements()) {
-        roots.push_back(nfa::insert_branch(automaton, option, origin_node));
+        size_t branch_node = automaton.add_node();
+        automaton.add_connection(origin_node, branch_node);
+        
+        roots.push_back(nfa::insert_branch(automaton, option, branch_node));
     }
 
     if(roots.size() > 1) {
@@ -167,11 +173,9 @@ size_t nfa::insert_quantifier(nfa& automaton, ast::quantifier_branch* b, const s
 }
 
 size_t nfa::insert_character(nfa& automaton, ast::character_set_branch* b, const size_t origin_node) {
-    size_t start_node = automaton.add_node();
-    automaton.add_connection(origin_node, start_node);
 
     size_t end_node = automaton.add_node();
-    automaton.add_connection(start_node, end_node, b->get_characters(), b->is_negated());
+    automaton.add_connection(origin_node, end_node, b->get_characters(), b->is_negated());
 
     return end_node;
 }
