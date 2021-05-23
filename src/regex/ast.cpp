@@ -28,6 +28,10 @@ bool sequence_branch::is_option() {
     return this->option;
 }
 
+const std::vector<branch*>& sequence_branch::get_elements() {
+    return this->elements;
+}
+
 std::string sequence_branch::to_string() {
     std::string as_str = (this->option) ? "Option{" : "Sequence{";
 
@@ -62,6 +66,10 @@ size_t quantifier_branch::get_maximum() {
 
 bool quantifier_branch::is_limited() {
     return this->limited;
+}
+
+branch* quantifier_branch::get_child() {
+    return this->child;
 }
 
 std::string quantifier_branch::to_string() {

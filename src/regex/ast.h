@@ -32,6 +32,7 @@ namespace ast {
 
             void add_element(branch* element);
             bool is_option();
+            const std::vector<branch*>& get_elements();
             std::string to_string() override;
 
             ~sequence_branch();
@@ -57,6 +58,7 @@ namespace ast {
             size_t get_minimum();
             size_t get_maximum();
             bool is_limited();
+            branch* get_child();
             std::string to_string() override;
 
             ~quantifier_branch();
