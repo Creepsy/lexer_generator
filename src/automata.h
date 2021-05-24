@@ -23,22 +23,22 @@ namespace automata {
         std::string root_tag = "";
     };
 
-    class nfa {
+    class automaton {
         private:
             std::vector<node> nodes;
 
-            static size_t insert_branch(nfa& automaton, ast::branch* b, const size_t origin_node);
-            static size_t insert_option(nfa& automaton, ast::sequence_branch* b, const size_t origin_node);
-            static size_t insert_sequence(nfa& automaton, ast::sequence_branch* b, const size_t origin_node);
-            static size_t insert_quantifier(nfa& automaton, ast::quantifier_branch* b, const size_t origin_node);
-            static size_t insert_character(nfa& automaton, ast::character_set_branch* b, const size_t origin_node);
+            static size_t insert_branch(automaton& machine, ast::branch* b, const size_t origin_node);
+            static size_t insert_option(automaton& machine, ast::sequence_branch* b, const size_t origin_node);
+            static size_t insert_sequence(automaton& machine, ast::sequence_branch* b, const size_t origin_node);
+            static size_t insert_quantifier(automaton& machine, ast::quantifier_branch* b, const size_t origin_node);
+            static size_t insert_character(automaton& machine, ast::character_set_branch* b, const size_t origin_node);
         public:
-            nfa();
+            automaton();
             bool add_connection(const size_t node_from, const size_t node_to, const std::vector<ast::char_range>& requirements = {}, const bool negated = false);
             size_t add_node(const std::string& root_tag = "");
             std::string to_string();
-            ~nfa();
+            ~automaton();
 
-            static nfa from_token_rules(const std::vector<std::pair<std::string, ast::branch*>>& rules);
+            static automaton from_token_rules(const std::vector<std::pair<std::string, ast::branch*>>& rules);
     };
 }

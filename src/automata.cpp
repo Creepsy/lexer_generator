@@ -1,4 +1,4 @@
-#include "nfa.h"
+#include "automata.h"
 
 using namespace automata;
 
@@ -30,10 +30,10 @@ std::string connection::to_string() {
 
 
 
-nfa::nfa() : nodes{} {
+automaton::automaton() : nodes{} {
 }
 
-bool nfa::add_connection(const size_t node_from, const size_t node_to, const std::vector<ast::char_range>& requirements, const bool negated) {
+bool automaton::add_connection(const size_t node_from, const size_t node_to, const std::vector<ast::char_range>& requirements, const bool negated) {
     if(this->nodes.size() <= node_from || this->nodes.size() <= node_to) return false;
 
     this->nodes[node_from].connections.push_back(connection{node_to, requirements, negated});
@@ -41,12 +41,12 @@ bool nfa::add_connection(const size_t node_from, const size_t node_to, const std
     return true;
 }
 
-size_t nfa::add_node(const std::string& root_tag) {
+size_t automaton::add_node(const std::string& root_tag) {
     this->nodes.push_back(node{std::vector<connection>{}, root_tag});
     return this->nodes.size() - 1;
 }
 
-std::string nfa::to_string() {
+std::string automaton::to_string() {
     std::string as_str = "{";
     for(size_t n = 0; n < this->nodes.size(); n++) {
         if(n != 0) as_str += ", ";
@@ -67,63 +67,63 @@ std::string nfa::to_string() {
     return as_str + "}";
 }
 
-nfa::~nfa() {
+automaton::~automaton() {
 }
 
 // static
 
-nfa nfa::from_token_rules(const std::vector<std::pair<std::string, ast::branch*>>& rules) {
-    nfa automaton{};
-    size_t origin_node = automaton.add_node();
+automaton automaton::from_token_rules(const std::vector<std::pair<std::string, ast::branch*>>& rules) {
+    automaton machine{};
+    size_t origin_node = machine.add_node();
 
     for(const std::pair<std::string, ast::branch*>& rule : rules) {
-        size_t branch_node = automaton.add_node();
-        automaton.add_connection(origin_node, branch_node);
+        size_t branch_node = machine.add_node();
+        machine.add_connection(origin_node, branch_node);
         
-        size_t end_node = nfa::insert_branch(automaton, rule.second, branch_node);
+        size_t end_node = automaton::insert_branch(machine, rule.second, branch_node);
         
-        size_t root_node = automaton.add_node(rule.first);
-        automaton.add_connection(end_node, root_node);
+        size_t root_node = machine.add_node(rule.first);
+        machine.add_connection(end_node, root_node);
     }
 
-    return automaton;
+    return machine;
 }
 
 // private, static
 
-size_t nfa::insert_branch(nfa& automaton, ast::branch* b, const size_t origin_node) {
+size_t automaton::insert_branch(automaton& machine, ast::branch* b, const size_t origin_node) {
     if(dynamic_cast<ast::quantifier_branch*>(b)) {
         ast::quantifier_branch* quantifier = dynamic_cast<ast::quantifier_branch*>(b);
-        return nfa::insert_quantifier(automaton, quantifier, origin_node);
+        return automaton::insert_quantifier(machine, quantifier, origin_node);
     } else if(dynamic_cast<ast::sequence_branch*>(b)) {
         ast::sequence_branch* sequence = dynamic_cast<ast::sequence_branch*>(b);
         if(sequence->is_option()) {
-            return nfa::insert_option(automaton, sequence, origin_node);
+            return automaton::insert_option(machine, sequence, origin_node);
         } else {
-            return nfa::insert_sequence(automaton, sequence, origin_node);
+            return automaton::insert_sequence(machine, sequence, origin_node);
         }
     } else {
         ast::character_set_branch* character = dynamic_cast<ast::character_set_branch*>(b);
-        return nfa::insert_character(automaton, character, origin_node);
+        return automaton::insert_character(machine, character, origin_node);
     }
 }
 
-size_t nfa::insert_option(nfa& automaton, ast::sequence_branch* b, const size_t origin_node) {
+size_t automaton::insert_option(automaton& machine, ast::sequence_branch* b, const size_t origin_node) {
     if(!b->is_option()) return origin_node;
 
     std::vector<size_t> roots;
 
     for(ast::branch* option : b->get_elements()) {
-        size_t branch_node = automaton.add_node();
-        automaton.add_connection(origin_node, branch_node);
+        size_t branch_node = machine.add_node();
+        machine.add_connection(origin_node, branch_node);
         
-        roots.push_back(nfa::insert_branch(automaton, option, branch_node));
+        roots.push_back(automaton::insert_branch(machine, option, branch_node));
     }
 
     if(roots.size() > 1) {
-        size_t group_node = automaton.add_node();
+        size_t group_node = machine.add_node();
         for(const size_t root : roots) {
-            automaton.add_connection(root, group_node);
+            machine.add_connection(root, group_node);
         }
         return group_node;
     }
@@ -131,27 +131,27 @@ size_t nfa::insert_option(nfa& automaton, ast::sequence_branch* b, const size_t 
     return roots[0];
 }
 
-size_t nfa::insert_sequence(nfa& automaton, ast::sequence_branch* b, const size_t origin_node) {
+size_t automaton::insert_sequence(automaton& machine, ast::sequence_branch* b, const size_t origin_node) {
     if(b->is_option()) return origin_node;
 
     size_t prev_node = origin_node;
 
     for(ast::branch* element : b->get_elements()) {
-        prev_node = nfa::insert_branch(automaton, element, prev_node);
+        prev_node = automaton::insert_branch(machine, element, prev_node);
     }
 
     return prev_node;
 }
 
-size_t nfa::insert_quantifier(nfa& automaton, ast::quantifier_branch* b, const size_t origin_node) {
-    size_t curr_node = automaton.add_node();
-    automaton.add_connection(origin_node, curr_node);
+size_t automaton::insert_quantifier(automaton& machine, ast::quantifier_branch* b, const size_t origin_node) {
+    size_t curr_node = machine.add_node();
+    machine.add_connection(origin_node, curr_node);
 
     size_t previous_node = curr_node;
 
     for(size_t c = 0; c < b->get_minimum(); c++) {
         previous_node = curr_node;
-        curr_node = nfa::insert_branch(automaton, b->get_child(), curr_node);
+        curr_node = automaton::insert_branch(machine, b->get_child(), curr_node);
     }
 
     if(b->is_limited()) {
@@ -159,23 +159,23 @@ size_t nfa::insert_quantifier(nfa& automaton, ast::quantifier_branch* b, const s
 
         for(size_t c = 0; c < b->get_maximum() - b->get_minimum(); c++) {
             to_connect.push_back(curr_node);
-            curr_node = nfa::insert_branch(automaton, b->get_child(), curr_node);
+            curr_node = automaton::insert_branch(machine, b->get_child(), curr_node);
         }
 
         for(const size_t n : to_connect) {
-            automaton.add_connection(n, curr_node);
+            machine.add_connection(n, curr_node);
         }
     } else {
-        automaton.add_connection(curr_node, previous_node);
+        machine.add_connection(curr_node, previous_node);
     }
 
     return curr_node;
 }
 
-size_t nfa::insert_character(nfa& automaton, ast::character_set_branch* b, const size_t origin_node) {
+size_t automaton::insert_character(automaton& machine, ast::character_set_branch* b, const size_t origin_node) {
 
-    size_t end_node = automaton.add_node();
-    automaton.add_connection(origin_node, end_node, b->get_characters(), b->is_negated());
+    size_t end_node = machine.add_node();
+    machine.add_connection(origin_node, end_node, b->get_characters(), b->is_negated());
 
     return end_node;
 }

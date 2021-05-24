@@ -5,7 +5,7 @@
 
 #include "regex/regex_lexer.h"
 #include "regex/regex_parser.h"
-#include "nfa.h"
+#include "automata.h"
 
 int main() {
     std::stringstream number_regex("2\\.(\\d\\d)|3\\.[a-z\\d]\\d{2}");
@@ -27,12 +27,12 @@ int main() {
         std::make_pair("NUMBER", number), std::make_pair("VARIABLE", var)
     };
 
-    automata::nfa automaton = automata::nfa::from_token_rules(token_rules);
+    automata::automaton machine = automata::automaton::from_token_rules(token_rules);
 
     delete number;
     delete var;
 
-    std::cout << "NFA: " << automaton.to_string() << std::endl;
+    std::cout << "NFA: " << machine.to_string() << std::endl;
 
     return 0;
 }
