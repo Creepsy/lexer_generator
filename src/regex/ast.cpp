@@ -1,8 +1,78 @@
 #include "ast.h"
 
 #include <cstddef>
+#include <algorithm>
 
 using namespace ast;
+
+std::vector<char_range> char_range::intersection(const char_range& other) const {
+    if(!this->negated && !other.negated) {
+        if(this->start > other.end || other.start > this->end) return std::vector<char_range>{};
+
+        return std::vector<char_range>{char_range{std::max(this->start, other.start), std::min(this->end, other.end)}};
+    } else {
+        std::vector<char_range> this_no_neg = this->without_negation();
+        std::vector<char_range> other_no_neg = other.without_negation();
+
+        std::vector<char_range> intersections;
+
+        for(char_range c0 : this_no_neg) {
+            for(char_range c1 : other_no_neg) {
+                std::vector<char_range> new_intersections = c0.intersection(c1);
+                intersections.insert(intersections.end(), new_intersections.begin(), new_intersections.end());
+            }
+        }
+
+        return char_range::simplify(intersections);
+    }
+}
+
+std::vector<char_range> char_range::without_negation() const {
+    if(!this->negated) return std::vector<char_range>{*this};
+
+    std::vector<char_range> ranges;
+
+    if(this->start > 0) {
+        ranges.push_back(char_range{(char)0, (char)(this->start - 1)});
+    }
+
+    if(this->end < 127) {
+        ranges.push_back(char_range{(char)(this->end + 1), (char)127});
+    }
+
+    return ranges;
+}
+
+std::vector<char_range> char_range::simplify(std::vector<char_range> ranges) {
+    std::vector<char_range> no_neg;
+
+    for(const char_range& c : ranges) {
+        if(c.negated) {
+            std::vector<char_range> new_ranges = c.without_negation();
+            no_neg.insert(no_neg.end(), new_ranges.begin(), new_ranges.end());
+        } else {
+            no_neg.push_back(c);
+        }
+    }
+
+    std::sort(no_neg.begin(), no_neg.end(), [](const char_range& first, const char_range& second) -> bool {
+        return first.start < second.start;
+    });
+
+    std::vector<char_range> grouped;
+
+    for(const char_range& range : no_neg) {
+        if(grouped.empty() || grouped.back().end < range.start - 1) {
+            grouped.push_back(range);
+        } else if(grouped.back().end < range.end) {
+            grouped.back().end = range.end;
+        }
+    }
+
+    return grouped;
+}
+
+
 
 branch::branch() {
 }

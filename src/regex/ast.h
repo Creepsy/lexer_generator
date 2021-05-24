@@ -10,6 +10,10 @@ namespace ast {
         char end;
 
         bool negated = false;
+
+        std::vector<char_range> intersection(const char_range& other) const;
+        std::vector<char_range> without_negation() const;
+        static std::vector<char_range> simplify(std::vector<char_range> ranges);
     };
 
     class branch {
