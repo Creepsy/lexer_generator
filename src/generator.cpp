@@ -1,37 +1,42 @@
 #include <iostream>
-#include <sstream>
+#include <fstream>
 #include <utility>
 #include <string>
+#include <sstream>
 
 #include "regex/regex_lexer.h"
 #include "regex/regex_parser.h"
 #include "automata.h"
 
-int main() {
-    std::stringstream integers_regex("\\d+");
-    std::stringstream floats_regex("[+-]?(\\d*\\.\\d+|\\d+\\.)([eE]([+-]?\\d+))?");
+int main(int argc, char* argv[]) {
+    if(argc != 3) {
+        std::cerr << "Missing required parameters ... exit" << std::endl;
+        return -1;
+    }
+    
+    std::ifstream rules{argv[1]};
+    if(!rules.is_open()) {
+        std::cerr << "Unable to open the rules file!" << std::endl;
+        return -1;
+    }
 
-    regex::regex_lexer integers_lexer{integers_regex};
-    regex::regex_lexer floats_lexer{floats_regex};
+    std::vector<std::pair<std::string, ast::branch*>> token_rules;
+    std::string token_rule;
+    while(rules.good()) {
+        std::getline(rules, token_rule);
+        size_t identifier_size = token_rule.find(' ');
+        std::string identifier = token_rule.substr(0, identifier_size);
+        std::stringstream regex{token_rule.substr(identifier_size + 1)};
 
-    regex::regex_parser integers_parser{integers_lexer};
-    regex::regex_parser floats_parser{floats_lexer};
+        regex::regex_lexer lexer{regex};
+        regex::regex_parser parser{lexer};
 
-    ast::branch* integers = integers_parser.parse_regex();
-    ast::branch* floats = floats_parser.parse_regex();
-
-    std::cout << "integers: " << integers->to_string() << '\n' << std::endl;
-    std::cout << "floats: " << floats->to_string() << '\n' << std::endl;
-
-    std::vector<std::pair<std::string, ast::branch*>> token_rules {
-        std::make_pair("INTEGER", integers), std::make_pair("FLOAT", floats)
-    };
-
+        token_rules.push_back(std::make_pair(identifier, parser.parse_regex()));
+    }
     automata::automaton nfa = automata::automaton::nfa_from_token_rules(token_rules);
 
-    delete integers;
-    delete floats;
-
+    for(const std::pair<std::string, ast::branch*>& rule : token_rules) delete rule.second;
+    
     automata::automaton dfa  = automata::automaton::dfa_from_nfa(nfa);
 
     std::cout << "NFA: " << nfa.to_string() << '\n' << std::endl;
