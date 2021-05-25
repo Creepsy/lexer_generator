@@ -45,7 +45,7 @@ namespace automata {
             automaton();
             bool add_connection(const size_t node_from, const size_t node_to, const std::vector<ast::char_range>& requirements = {}, const bool negated = false);
             size_t add_node(const std::string& root_tag = "");
-            const std::vector<node> get_nodes();
+            const std::vector<node> get_nodes() const;
             std::string to_string();
             ~automaton();
 

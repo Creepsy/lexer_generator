@@ -2,6 +2,8 @@
 
 #include <string>
 #include <vector>
+#include <limits>
+#include <cstddef>
 
 namespace templates {
     const std::vector<std::string> LEXER_HEADER = {
@@ -55,13 +57,15 @@ namespace templates {
         "}\n"
         "\n"
         "token lexer::next_token() {\n"
+        "\tif(this->end()) return token{\"EOF\", token::END_OF_FILE, position{}};\n"
+        "\n"
         "\tsize_t start_line = this->curr_line;\n"
         "\tsize_t start_column = this->curr_column;\n"
         "\tstd::string identifier;\n"
         "\tsize_t state = 0;\n"
         "\n"
         "\twhile(!this->stream.fail()) {\n"
-        "\t\tswitch(this->curr) {\n",
+        "\t\tswitch(state) {\n",
 
         "\t\t}\n"
         "\n"
@@ -74,6 +78,7 @@ namespace templates {
         "\t\t\tthis->curr_line++;\n"
         "\t\t}\n"
         "\t}\n"
+        "\treturn token{\"\", token::UNDEFINED, position{}};\n"
         "}\n"
         "\n"
         "lexer::~lexer() {\n"
@@ -85,4 +90,13 @@ namespace templates {
         "\tthis->curr = this->stream.get();\n"
         "}\n"
     };
+
+    const std::string ERROR_NODE = 
+        "\t\t\tdefault:\n"
+        "\t\t\t\treturn token{identifier, token::UNDEFINED, position{start_line, start_column, this->curr_line, this->curr_column}};\n";
+
+    const std::string ERROR_CHAR = 
+        "\t\t\t\t\tdefault:\n"
+        "\t\t\t\t\t\tstate = " + std::to_string(std::numeric_limits<size_t>::max()) + "ULL;\n"
+        "\t\t\t\t\t\tbreak;\n";
 };
