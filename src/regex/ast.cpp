@@ -27,6 +27,34 @@ std::vector<char_range> char_range::intersection(const char_range& other) const 
     }
 }
 
+std::vector<char_range> char_range::substract(const char_range& other) const {
+    std::vector<char_range> result = this->without_negation();
+    std::vector<char_range> intersections = this->intersection(other);
+
+    for(char_range& intersect : intersections) {
+        std::vector<char_range> new_ranges;
+        for(size_t c = 0; c < result.size(); c++) {
+            char_range& range = result[c];
+            if(intersect.start == range.start && intersect.end == range.end) {
+                result.erase(result.begin() + c);
+                c--;
+            } else if(intersect.start > range.start && intersect.end == range.end) {
+                range.end = (char)(intersect.start - 1);
+            } else if(intersect.end < range.end && intersect.start == range.start) {
+                range.start = (char)(intersect.end + 1);
+            } else if(intersect.start > range.start && intersect.end < range.end) {
+                new_ranges.push_back(char_range{range.start, (char)(intersect.start - 1)});
+                new_ranges.push_back(char_range{(char)(intersect.end + 1), range.end});
+                result.erase(result.begin() + c);
+                c--;
+            }
+        }
+        result.insert(result.end(), new_ranges.begin(), new_ranges.end());
+    }
+
+    return char_range::simplify(result);
+}
+
 std::vector<char_range> char_range::without_negation() const {
     if(!this->negated) return std::vector<char_range>{*this};
 
@@ -70,6 +98,32 @@ std::vector<char_range> char_range::simplify(std::vector<char_range> ranges) {
     }
 
     return grouped;
+}
+
+std::vector<char_range> char_range::group_intersection(const std::vector<char_range>& first, const std::vector<char_range>& second) {
+    std::vector<char_range> intersections;
+
+    for(const char_range& f : first) {
+        for(const char_range& s : second) {
+            std::vector<char_range> intersection = f.intersection(s);
+            intersections.insert(intersections.end(), intersection.begin(), intersection.end());
+        }
+    }
+
+    return char_range::simplify(intersections);
+}
+
+std::vector<char_range> char_range::group_substract(std::vector<char_range> first, const std::vector<char_range>& second) {
+    for(const char_range& s : second) {
+        std::vector<char_range> new_result;
+        for(const char_range& f : first) {
+            std::vector<char_range> remaining = f.substract(s);
+            new_result.insert(new_result.end(), remaining.begin(), remaining.end());
+        }
+        first = new_result;
+    }
+
+    return char_range::simplify(first);
 }
 
 

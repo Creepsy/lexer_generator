@@ -12,8 +12,11 @@ namespace ast {
         bool negated = false;
 
         std::vector<char_range> intersection(const char_range& other) const;
+        std::vector<char_range> substract(const char_range& other) const;
         std::vector<char_range> without_negation() const;
         static std::vector<char_range> simplify(std::vector<char_range> ranges);
+        static std::vector<char_range> group_intersection(const std::vector<char_range>& first, const std::vector<char_range>& second);
+        static std::vector<char_range> group_substract(std::vector<char_range> first, const std::vector<char_range>& second);
     };
 
     class branch {
