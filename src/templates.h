@@ -1,0 +1,88 @@
+#pragma once
+
+#include <string>
+#include <vector>
+
+namespace templates {
+    const std::vector<std::string> LEXER_HEADER = {
+        "#pragma once\n"
+        "\n"
+        "#include <cstddef>\n"
+        "#include <string>\n"
+        "#include <istream>\n"
+        "\n"
+        "struct position {\n"
+        "\tsize_t start_line;\n"
+        "\tsize_t start_column;\n"
+        "\tsize_t end_line;\n"
+        "\tsize_t end_column;\n"
+        "};\n"
+        "\n"
+        "struct token {\n"
+        "\tenum token_type {\n",
+        
+        "\t};\n"
+        "\n"
+        "\tstd::string identifier;\n"
+        "\ttoken_type type;\n"
+        "\tposition pos;\n"
+        "};\n"
+        "\n"
+        "class lexer {\n"
+        "\tprivate:\n"
+        "\t\tstd::istream& stream;\n"
+        "\t\tsize_t curr_line;\n"
+        "\t\tsize_t curr_column;\n"
+        "\t\tchar curr;\n"
+        "\n"
+        "\t\tvoid next();\n"
+        "   public:\n"
+        "\t\tlexer(std::istream& stream);\n"
+        "\t\tbool end();\n"
+        "\t\ttoken next_token();\n"
+        "\t\t~lexer();\n"
+        "};\n"
+    };
+
+    const std::vector<std::string> LEXER_SOURCE = {
+        "#include \"lexer.h\"\n"
+        "\n"
+        "lexer::lexer(std::istream& stream) : stream(stream), curr_line(0), curr_column(0) {\n"
+        "}\n"
+        "\n"
+        "bool lexer::end() {\n"
+        "\treturn this->stream.fail();\n"
+        "}\n"
+        "\n"
+        "token lexer::next_token() {\n"
+        "\tsize_t start_line = this->curr_line;\n"
+        "\tsize_t start_column = this->curr_column;\n"
+        "\tstd::string identifier;\n"
+        "\tsize_t state = 0;\n"
+        "\n"
+        "\twhile(!this->stream.fail()) {\n"
+        "\t\tswitch(this->curr) {\n",
+
+        "\t\t}\n"
+        "\n"
+        "\t\tidentifier += this->curr;\n"
+        "\t\tthis->next();\n"
+        "\n"
+        "\t\tthis->curr_column++;\n"
+        "\t\tif(this->curr == '\\n') {\n"
+        "\t\t\tthis->curr_column = 0;\n"
+        "\t\t\tthis->curr_line++;\n"
+        "\t\t}\n"
+        "\t}\n"
+        "}\n"
+        "\n"
+        "lexer::~lexer() {\n"
+        "}\n"
+        "\n"
+        "//private\n"
+        "\n"
+        "void lexer::next() {\n"
+        "\tthis->curr = this->stream.get();\n"
+        "}\n"
+    };
+};
