@@ -56,6 +56,10 @@ size_t automaton::add_node(const std::string& root_tag) {
     return this->nodes.size() - 1;
 }
 
+const std::vector<node> automaton::get_nodes() {
+    return this->nodes;
+}
+
 std::string automaton::to_string() {
     std::string as_str = "{";
     for(size_t n = 0; n < this->nodes.size(); n++) {
