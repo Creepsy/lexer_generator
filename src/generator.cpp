@@ -9,7 +9,7 @@
 
 int main() {
     std::stringstream integers_regex("\\d+");
-    std::stringstream floats_regex("\\d*\\.\\d+|\\d+\\.");
+    std::stringstream floats_regex("[+-]?(\\d*\\.\\d+|\\d+\\.)([eE]([+-]?\\d+))?");
 
     regex::regex_lexer integers_lexer{integers_regex};
     regex::regex_lexer floats_lexer{floats_regex};
