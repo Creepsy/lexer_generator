@@ -8,31 +8,34 @@
 #include "automata.h"
 
 int main() {
-    std::stringstream number_regex("2\\.(\\d\\d)|3\\.[a-z\\d]\\d{2}");
-    std::stringstream var_regex("VAR\\d{3,5}");
+    std::stringstream integers_regex("\\d+");
+    std::stringstream floats_regex("\\d*\\.\\d+|\\d+\\.");
 
-    regex::regex_lexer number_lexer{number_regex};
-    regex::regex_lexer var_lexer{var_regex};
+    regex::regex_lexer integers_lexer{integers_regex};
+    regex::regex_lexer floats_lexer{floats_regex};
 
-    regex::regex_parser number_parser{number_lexer};
-    regex::regex_parser var_parser{var_lexer};
+    regex::regex_parser integers_parser{integers_lexer};
+    regex::regex_parser floats_parser{floats_lexer};
 
-    ast::branch* number = number_parser.parse_regex();
-    ast::branch* var = var_parser.parse_regex();
+    ast::branch* integers = integers_parser.parse_regex();
+    ast::branch* floats = floats_parser.parse_regex();
 
-    std::cout << "Number: " << number->to_string() << std::endl;
-    std::cout << "Variable: " << var->to_string() << std::endl;
+    std::cout << "integers: " << integers->to_string() << '\n' << std::endl;
+    std::cout << "floats: " << floats->to_string() << '\n' << std::endl;
 
     std::vector<std::pair<std::string, ast::branch*>> token_rules {
-        std::make_pair("NUMBER", number), std::make_pair("VARIABLE", var)
+        std::make_pair("INTEGER", integers), std::make_pair("FLOAT", floats)
     };
 
-    automata::automaton machine = automata::automaton::from_token_rules(token_rules);
+    automata::automaton nfa = automata::automaton::nfa_from_token_rules(token_rules);
 
-    delete number;
-    delete var;
+    delete integers;
+    delete floats;
 
-    std::cout << "NFA: " << machine.to_string() << std::endl;
+    automata::automaton dfa  = automata::automaton::dfa_from_nfa(nfa);
+
+    std::cout << "NFA: " << nfa.to_string() << '\n' << std::endl;
+    std::cout << "DFA: " << dfa.to_string() << std::endl;
 
     return 0;
 }
