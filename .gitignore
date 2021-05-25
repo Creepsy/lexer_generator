@@ -1,5 +1,6 @@
 build/
 .vscode/
 generator
-lexer.h
-lexer.cpp
+test/lexer.h
+test/lexer.cpp
+test/test

@@ -54,7 +54,6 @@ int main(int argc, char* argv[]) {
     lexer_source << templates::LEXER_SOURCE[0];
 
     lexer_header << "\t\tUNDEFINED,\n";
-    lexer_header << "\t\tEND_OF_FILE,\n";
 
     for(size_t r = 0; r < token_rules.size(); r++) {
         lexer_header << "\t\t" << token_rules[r].first;

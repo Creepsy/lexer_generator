@@ -1,2 +1,3 @@
 INT \d+
 FLOAT [+-]?(\d*\.\d+|\d+\.)([eE]([+-]?\d+))?
+WHITESPACE [\t\n\r\f\v ]
