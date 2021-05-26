@@ -53,6 +53,7 @@ int main(int argc, char* argv[]) {
     lexer_header << templates::LEXER_HEADER[0];
     lexer_source << templates::LEXER_SOURCE[0];
 
+    lexer_header << "\t\tEND_OF_FILE,\n";
     lexer_header << "\t\tUNDEFINED,\n";
 
     for(size_t r = 0; r < token_rules.size(); r++) {

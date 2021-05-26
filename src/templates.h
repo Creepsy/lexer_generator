@@ -60,6 +60,8 @@ namespace templates {
         "token lexer::next_token() {\n"
         "\tsize_t start_line = this->curr_line;\n"
         "\tsize_t start_column = this->curr_column;\n"
+        "\tif(this->end()) return token{\"EOF\", token::END_OF_FILE, position{start_line, start_column, start_line, start_column}};\n"
+        "\n"
         "\tstd::string identifier = \"\";\n"
         "\tsize_t state = 0;\n"
         "\n"

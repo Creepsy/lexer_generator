@@ -17,7 +17,7 @@ int main() {
         token t = lex.next_token();
         std::cout << t.type << " -> " << t.identifier
                   << ", [" << t.pos.start_line << "," << t.pos.start_column << "] to [" << t.pos.end_line << "," << t.pos.end_column << "]" << std::endl;
-        if(t.type == token::UNDEFINED) break;
+        if(t.type == token::END_OF_FILE) break;
     }
 
     return 0;
