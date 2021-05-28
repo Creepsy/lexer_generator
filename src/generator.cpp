@@ -10,6 +10,7 @@
 #include "templates.h"
 
 void write_dfa_to_source(const automata::automaton& dfa, std::ofstream& stream, bool use_ranges);
+void write_ignored_tokens_to_source(std::ofstream& stream, const std::vector<std::string>& ignored_tokens);
 
 int main(int argc, char* argv[]) {
     if(argc < 4) {
@@ -25,6 +26,8 @@ int main(int argc, char* argv[]) {
 
     std::vector<std::pair<std::string, ast::branch*>> token_rules;
     std::string token_rule;
+    std::vector<std::string> ignored_tokens;
+
     while(rules.good()) {
         std::getline(rules, token_rule);
         size_t identifier_size = token_rule.find(' ');
@@ -33,6 +36,11 @@ int main(int argc, char* argv[]) {
 
         regex::regex_lexer lexer{regex};
         regex::regex_parser parser{lexer};
+
+        if(identifier[0] == '$') {
+            identifier = identifier.substr(1);
+            ignored_tokens.push_back(identifier);
+        }
 
         token_rules.push_back(std::make_pair(identifier, parser.parse_regex()));
     }
@@ -62,6 +70,10 @@ int main(int argc, char* argv[]) {
         lexer_header << '\n';
     }
 
+    write_ignored_tokens_to_source(lexer_source, ignored_tokens);
+
+    lexer_source << templates::LEXER_SOURCE[1];
+
     if(argc == 5 && std::string(argv[4]) == "no_ranges") {
         write_dfa_to_source(dfa, lexer_source, false);
     } else {
@@ -69,7 +81,7 @@ int main(int argc, char* argv[]) {
     } 
 
     lexer_header << templates::LEXER_HEADER[1];
-    lexer_source << templates::LEXER_SOURCE[1];
+    lexer_source << templates::LEXER_SOURCE[2];
 
     lexer_header.close();
     lexer_source.close();
@@ -120,4 +132,12 @@ void write_dfa_to_source(const automata::automaton& dfa, std::ofstream& stream, 
     }
 
     stream << templates::ERROR_NODE;
+}
+
+void write_ignored_tokens_to_source(std::ofstream& stream, const std::vector<std::string>& ignored_tokens) {
+    for(size_t t = 0; t < ignored_tokens.size(); t++) {
+        stream << "\ttoken::" << ignored_tokens[t];
+        if(t != ignored_tokens.size() - 1) stream << ',';
+        stream << '\n';
+    }
 }

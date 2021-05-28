@@ -14,7 +14,7 @@ int main() {
     lexer lex{tests};
 
     while(true) {
-        token t = lex.next_token();
+        token t = lex.next_unignored_token();
         std::cout << t.type << " -> " << t.identifier
                   << ", [" << t.pos.start_line << "," << t.pos.start_column << "] to [" << t.pos.end_line << "," << t.pos.end_column << "]" << std::endl;
         if(t.type == token::END_OF_FILE) break;

@@ -44,12 +44,19 @@ namespace templates {
         "\t\tlexer(std::istream& stream);\n"
         "\t\tbool end();\n"
         "\t\ttoken next_token();\n"
+        "\t\ttoken next_unignored_token();\n"
         "\t\t~lexer();\n"
         "};\n"
     };
 
     const std::vector<std::string> LEXER_SOURCE = {
         "#include \"lexer.h\"\n"
+        "\n"
+        "#include <set>\n"
+        "\n"
+        "const std::set<token::token_type> IGNORED_TOKENS {\n",
+
+        "};\n"
         "\n"
         "lexer::lexer(std::istream& stream) : stream(stream), curr_line(0), curr_column(0), curr('\\0') {\n"
         "\tthis->next();\n"
@@ -77,6 +84,14 @@ namespace templates {
         "\t\tthis->next();\n"
         "\t}\n"
         "\treturn token{\"\", token::UNDEFINED, position{}};\n"
+        "}\n"
+        "\n"
+        "token lexer::next_unignored_token() {\n"
+        "\ttoken t = this->next_token();\n"
+        "\twhile(t.type != token::UNDEFINED && t.type != token::END_OF_FILE && IGNORED_TOKENS.find(t.type) != IGNORED_TOKENS.end()) {\n"
+        "\t\tt = this->next_token();\n"
+        "\t}\n"
+        "\treturn t;\n"
         "}\n"
         "\n"
         "lexer::~lexer() {\n"
