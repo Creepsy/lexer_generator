@@ -66,12 +66,6 @@ token regex_lexer::next_escaped() {
     char next = this->input.get();
 
     switch(next) {
-        case '.':
-            return token{token::CHAR, "."};
-        case '*':
-        return token{token::CHAR, "*"};
-        case '\\':
-            return token{token::CHAR, "\\"};
         case 't':
             return token{token::CHAR, "\t"};
         case 'n':
@@ -101,7 +95,7 @@ token regex_lexer::next_escaped() {
         case 'S':
             return token{token::NWSPACE, "NO WHITESPACE"};
         default:
-            return token{token::UNDEFINED, "UNDEFINED"};
+            return token{token::CHAR, std::string(1, next)};
     }
 }
 
