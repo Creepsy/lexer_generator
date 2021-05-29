@@ -6,7 +6,7 @@
 #include <cstddef>
 
 namespace templates {
-    const std::vector<std::string> LEXER_HEADER = {
+    const std::vector<std::string> LEXER_HEADER {
         "#pragma once\n"
         "\n"
         "#include <cstddef>\n"
@@ -30,7 +30,9 @@ namespace templates {
         "\tposition pos;\n"
         "};\n"
         "\n"
-        "class lexer {\n"
+        "class ",
+        
+        " {\n"
         "\tprivate:\n"
         "\t\tstd::istream& stream;\n"
         "\n"
@@ -41,15 +43,19 @@ namespace templates {
         "\n"
         "\t\tvoid next();\n"
         "   public:\n"
-        "\t\tlexer(std::istream& stream);\n"
+        "\t\t",
+        
+        "(std::istream& stream);\n"
         "\t\tbool end();\n"
         "\t\ttoken next_token();\n"
         "\t\ttoken next_unignored_token();\n"
-        "\t\t~lexer();\n"
+        "\t\t~",
+        
+        "();\n"
         "};\n"
     };
 
-    const std::vector<std::string> LEXER_SOURCE = {
+    const std::vector<std::string> LEXER_SOURCE {
         "#include \"",
         
         "\"\n"
@@ -59,17 +65,24 @@ namespace templates {
         "const std::set<token::token_type> IGNORED_TOKENS {\n",
 
         "};\n"
-        "\n"
-        "lexer::lexer(std::istream& stream) : stream(stream), curr_line(0), curr_column(0), curr('\\0') {\n"
+        "\n",
+
+        "::",
+        
+        "(std::istream& stream) : stream(stream), curr_line(0), curr_column(0), curr('\\0') {\n"
         "\tthis->next();\n"
         "\tthis->curr_column--;\n"
         "}\n"
         "\n"
-        "bool lexer::end() {\n"
+        "bool ",
+
+        "::end() {\n"
         "\treturn this->stream.fail();\n"
         "}\n"
         "\n"
-        "token lexer::next_token() {\n"
+        "token ",
+        
+        "::next_token() {\n"
         "\tsize_t start_line = this->curr_line;\n"
         "\tsize_t start_column = this->curr_column;\n"
         "\tif(this->end()) return token{\"EOF\", token::END_OF_FILE, position{start_line, start_column, start_line, start_column}};\n"
@@ -88,20 +101,27 @@ namespace templates {
         "\treturn token{\"\", token::UNDEFINED, position{}};\n"
         "}\n"
         "\n"
-        "token lexer::next_unignored_token() {\n"
+        "token ",
+        
+        "::next_unignored_token() {\n"
         "\ttoken t = this->next_token();\n"
         "\twhile(t.type != token::UNDEFINED && t.type != token::END_OF_FILE && IGNORED_TOKENS.find(t.type) != IGNORED_TOKENS.end()) {\n"
         "\t\tt = this->next_token();\n"
         "\t}\n"
         "\treturn t;\n"
         "}\n"
-        "\n"
-        "lexer::~lexer() {\n"
+        "\n",
+
+        "::~",
+        
+        "() {\n"
         "}\n"
         "\n"
         "//private\n"
         "\n"
-        "void lexer::next() {\n"
+        "void ",
+        
+        "::next() {\n"
         "\tthis->curr_column++;\n"
         "\tif(this->curr == '\\n') {\n"
         "\t\tthis->curr_column = 0;\n"

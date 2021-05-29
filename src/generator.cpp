@@ -3,15 +3,16 @@
 #include <utility>
 #include <string>
 #include <sstream>
-#include <cstring>
 
 #include "regex/regex_lexer.h"
 #include "regex/regex_parser.h"
 #include "automata.h"
 #include "templates.h"
 
-void write_dfa_to_source(const automata::automaton& dfa, std::ofstream& stream, bool use_ranges);
+void write_dfa_to_source(const automata::automaton& dfa, std::ofstream& stream, const std::string& name, bool use_ranges);
 void write_ignored_tokens_to_source(std::ofstream& stream, const std::vector<std::string>& ignored_tokens);
+void create_header(std::ofstream& stream, const std::string& name, const std::vector<std::pair<std::string, ast::branch*>>& token_rules);
+void create_source(const automata::automaton& dfa, std::ofstream& stream, const std::string& name, const bool no_ranges, const std::vector<std::string>& ignored_tokens);
 
 int main(int argc, char* argv[]) {
     if(argc < 4) {
@@ -51,44 +52,18 @@ int main(int argc, char* argv[]) {
     
     automata::automaton dfa  = automata::automaton::dfa_from_nfa(nfa);
 
-    std::string header_path = std::string(argv[2]) + argv[3];
-    std::string source_path = std::string(argv[2]) + argv[4];
+    std::string path = std::string(argv[2]) + argv[3];
 
-    std::ofstream lexer_header{header_path, std::ios::trunc};
-    std::ofstream lexer_source{source_path, std::ios::trunc};
+    std::ofstream lexer_header{path + ".h", std::ios::trunc};
+    std::ofstream lexer_source{path + ".cpp", std::ios::trunc};
 
     if(!lexer_header.is_open() || !lexer_source.is_open()) {
         std::cerr << "Unable to create header or source!" << std::endl;
         return -1;
     }
 
-    lexer_header << templates::LEXER_HEADER[0];
-    lexer_source << templates::LEXER_SOURCE[0];
-    lexer_source << argv[3];
-    lexer_source << templates::LEXER_SOURCE[1];
-
-
-    lexer_header << "\t\tEND_OF_FILE,\n";
-    lexer_header << "\t\tUNDEFINED,\n";
-
-    for(size_t r = 0; r < token_rules.size(); r++) {
-        lexer_header << "\t\t" << token_rules[r].first;
-        if(r != token_rules.size() - 1) lexer_header << ",";
-        lexer_header << '\n';
-    }
-
-    write_ignored_tokens_to_source(lexer_source, ignored_tokens);
-
-    lexer_source << templates::LEXER_SOURCE[2];
-
-    if(argc == 6 && std::string(argv[5]) == "no_ranges") {
-        write_dfa_to_source(dfa, lexer_source, false);
-    } else {
-        write_dfa_to_source(dfa, lexer_source, true);
-    } 
-
-    lexer_header << templates::LEXER_HEADER[1];
-    lexer_source << templates::LEXER_SOURCE[3];
+    create_header(lexer_header, argv[3], token_rules);
+    create_source(dfa, lexer_source, argv[3], argc == 5 && std::string(argv[4]) == "no_ranges", ignored_tokens);
 
     lexer_header.close();
     lexer_source.close();
@@ -98,7 +73,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void write_dfa_to_source(const automata::automaton& dfa, std::ofstream& stream, bool use_ranges) {
+void write_dfa_to_source(const automata::automaton& dfa, std::ofstream& stream, const std::string& name, bool use_ranges) {
     for(size_t n = 0; n < dfa.get_nodes().size(); n++) {
         const automata::node curr = dfa.get_nodes()[n];
         stream << "\t\t\tcase " << n << ":\n";
@@ -147,4 +122,49 @@ void write_ignored_tokens_to_source(std::ofstream& stream, const std::vector<std
         if(t != ignored_tokens.size() - 1) stream << ',';
         stream << '\n';
     }
+}
+
+void create_header(std::ofstream& stream, const std::string& name, const std::vector<std::pair<std::string, ast::branch*>>& token_rules) {
+    stream << templates::LEXER_HEADER[0];
+
+    stream << "\t\tEND_OF_FILE,\n";
+    stream << "\t\tUNDEFINED,\n";
+
+    for(size_t r = 0; r < token_rules.size(); r++) {
+        stream << "\t\t" << token_rules[r].first;
+        if(r != token_rules.size() - 1) stream << ",";
+        stream << '\n';
+    }
+
+    for(size_t i = 1; i < templates::LEXER_HEADER.size() - 1; i++) {
+        stream << templates::LEXER_HEADER[i];
+        stream << name;
+    }
+
+    stream << templates::LEXER_HEADER[templates::LEXER_HEADER.size() - 1];
+}
+
+void create_source(const automata::automaton& dfa, std::ofstream& stream, const std::string& name, const bool no_ranges, const std::vector<std::string>& ignored_tokens) {
+    stream << templates::LEXER_SOURCE[0];
+    stream << name << ".h";
+    stream << templates::LEXER_SOURCE[1];
+
+    write_ignored_tokens_to_source(stream, ignored_tokens);
+
+    for(size_t i = 2; i < 6; i++) {
+        stream << templates::LEXER_SOURCE[i];
+        stream << name;
+    }
+
+    stream << templates::LEXER_SOURCE[6];
+
+    write_dfa_to_source(dfa, stream, name, !no_ranges);
+
+
+    for(size_t i = 7; i < templates::LEXER_SOURCE.size() - 1; i++) {
+        stream << templates::LEXER_SOURCE[i];
+        stream << name;
+    }
+
+    stream << templates::LEXER_SOURCE[11];
 }
