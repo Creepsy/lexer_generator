@@ -13,7 +13,7 @@ void write_dfa_to_source(const automata::automaton& dfa, std::ofstream& stream, 
 void write_ignored_tokens_to_source(std::ofstream& stream, const std::vector<std::string>& ignored_tokens);
 
 int main(int argc, char* argv[]) {
-    if(argc < 4) {
+    if(argc < 5) {
         std::cerr << "Missing required parameters ... exit" << std::endl;
         return -1;
     }
@@ -60,6 +60,9 @@ int main(int argc, char* argv[]) {
 
     lexer_header << templates::LEXER_HEADER[0];
     lexer_source << templates::LEXER_SOURCE[0];
+    lexer_source << argv[4];
+    lexer_source << templates::LEXER_SOURCE[1];
+
 
     lexer_header << "\t\tEND_OF_FILE,\n";
     lexer_header << "\t\tUNDEFINED,\n";
@@ -72,16 +75,16 @@ int main(int argc, char* argv[]) {
 
     write_ignored_tokens_to_source(lexer_source, ignored_tokens);
 
-    lexer_source << templates::LEXER_SOURCE[1];
+    lexer_source << templates::LEXER_SOURCE[2];
 
-    if(argc == 5 && std::string(argv[4]) == "no_ranges") {
+    if(argc == 6 && std::string(argv[5]) == "no_ranges") {
         write_dfa_to_source(dfa, lexer_source, false);
     } else {
         write_dfa_to_source(dfa, lexer_source, true);
     } 
 
     lexer_header << templates::LEXER_HEADER[1];
-    lexer_source << templates::LEXER_SOURCE[2];
+    lexer_source << templates::LEXER_SOURCE[3];
 
     lexer_header.close();
     lexer_source.close();

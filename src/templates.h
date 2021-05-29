@@ -50,7 +50,9 @@ namespace templates {
     };
 
     const std::vector<std::string> LEXER_SOURCE = {
-        "#include \"lexer.h\"\n"
+        "#include \"",
+        
+        "\"\n"
         "\n"
         "#include <set>\n"
         "\n"
