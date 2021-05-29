@@ -44,12 +44,13 @@ int main(int argc, char* argv[]) {
             ignored_tokens.push_back(identifier);
         }
 
+
         token_rules.push_back(std::make_pair(identifier, parser.parse_regex()));
     }
 
     automata::automaton nfa = automata::automaton::nfa_from_token_rules(token_rules);
     for(const std::pair<std::string, ast::branch*>& rule : token_rules) delete rule.second;
-    
+
     automata::automaton dfa  = automata::automaton::dfa_from_nfa(nfa);
 
     std::string path = std::string(argv[2]) + argv[3];

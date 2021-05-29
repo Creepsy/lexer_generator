@@ -21,7 +21,7 @@ regex_parser::regex_parser(regex_lexer& lexer) : lexer(lexer) {
 }
 
 ast::branch* regex_parser::parse_regex() {
-    if(this->lexer.fail()) return nullptr;
+    if(this->accept(std::vector<token::token_type>{token::UNDEFINED, token::END_OF_FILE})) return nullptr;
 
     return this->parse_option();
 }
