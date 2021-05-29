@@ -3,6 +3,7 @@
 #include <utility>
 #include <string>
 #include <sstream>
+#include <cstring>
 
 #include "regex/regex_lexer.h"
 #include "regex/regex_parser.h"
@@ -13,7 +14,7 @@ void write_dfa_to_source(const automata::automaton& dfa, std::ofstream& stream, 
 void write_ignored_tokens_to_source(std::ofstream& stream, const std::vector<std::string>& ignored_tokens);
 
 int main(int argc, char* argv[]) {
-    if(argc < 5) {
+    if(argc < 4) {
         std::cerr << "Missing required parameters ... exit" << std::endl;
         return -1;
     }
@@ -50,8 +51,11 @@ int main(int argc, char* argv[]) {
     
     automata::automaton dfa  = automata::automaton::dfa_from_nfa(nfa);
 
-    std::ofstream lexer_header{argv[2], std::ios::trunc};
-    std::ofstream lexer_source{argv[3], std::ios::trunc};
+    std::string header_path = std::string(argv[2]) + argv[3];
+    std::string source_path = std::string(argv[2]) + argv[4];
+
+    std::ofstream lexer_header{header_path, std::ios::trunc};
+    std::ofstream lexer_source{source_path, std::ios::trunc};
 
     if(!lexer_header.is_open() || !lexer_source.is_open()) {
         std::cerr << "Unable to create header or source!" << std::endl;
@@ -60,7 +64,7 @@ int main(int argc, char* argv[]) {
 
     lexer_header << templates::LEXER_HEADER[0];
     lexer_source << templates::LEXER_SOURCE[0];
-    lexer_source << argv[4];
+    lexer_source << argv[3];
     lexer_source << templates::LEXER_SOURCE[1];
 
 
