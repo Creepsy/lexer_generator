@@ -1,6 +1,6 @@
 #include "automata.h"
 
-#include <stdexcept>
+#include <iostream>
 
 using namespace automata;
 
@@ -105,7 +105,7 @@ automaton automaton::nfa_from_token_rules(const std::vector<std::pair<std::strin
     return machine;
 }
 
-automaton automaton::dfa_from_nfa(automaton nfa) {
+automaton automaton::dfa_from_nfa(automaton nfa, const std::map<std::string, size_t>& token_precedence) {
     if(nfa.nodes.empty()) return automaton{};
 
     for(node& n : nfa.nodes) {
@@ -122,9 +122,9 @@ automaton automaton::dfa_from_nfa(automaton nfa) {
 
     automaton dfa{};
     std::map<std::set<size_t>, size_t> node_ids;
-    automaton::create_dfa_node(epsilon_enclosures[0], nfa, dfa, node_ids);
+    automaton::create_dfa_node(epsilon_enclosures[0], nfa, dfa, node_ids, token_precedence);
 
-    automaton::add_dfa_connections(epsilon_enclosures, dfa, nfa, node_ids, epsilon_enclosures[0]);
+    automaton::add_dfa_connections(epsilon_enclosures, dfa, nfa, node_ids, epsilon_enclosures[0], token_precedence);
     
     return dfa;
 }
@@ -227,7 +227,7 @@ size_t automaton::insert_character(automaton& machine, ast::character_set_branch
 }
 
 void automaton::add_dfa_connections(const std::vector<std::set<size_t>>& enclosures, automaton& dfa, const automaton& nfa,
-                                    std::map<std::set<size_t>, size_t>& node_ids, const std::set<size_t>& curr) {
+                                    std::map<std::set<size_t>, size_t>& node_ids, const std::set<size_t>& curr, const std::map<std::string, size_t>& token_precedence) {
     std::vector<std::pair<std::set<size_t>, std::vector<ast::char_range>>> connections;
     for(const size_t n : curr) {
         for(const connection& c : nfa.nodes[n].connections) {
@@ -267,20 +267,27 @@ void automaton::add_dfa_connections(const std::vector<std::set<size_t>>& enclosu
         if(node_ids.find(connected_nodes) != node_ids.end()) {
             target_node = node_ids[connected_nodes];
         } else {
-            target_node = dfa.create_dfa_node(connected_nodes, nfa, dfa, node_ids);
-            automaton::add_dfa_connections(enclosures, dfa, nfa, node_ids, connected_nodes);
+            target_node = dfa.create_dfa_node(connected_nodes, nfa, dfa, node_ids, token_precedence);
+            automaton::add_dfa_connections(enclosures, dfa, nfa, node_ids, connected_nodes, token_precedence);
         }
         
         dfa.add_connection(node_ids[curr], target_node, c.second);
     }
 }
 
-size_t automaton::create_dfa_node(const std::set<size_t>& nodes, const automaton& nfa, automaton& dfa, std::map<std::set<size_t>, size_t>& node_ids) {
+size_t automaton::create_dfa_node(const std::set<size_t>& nodes, const automaton& nfa, automaton& dfa,
+                                  std::map<std::set<size_t>, size_t>& node_ids, const std::map<std::string, size_t>& token_precedence) {
     std::string root_tag = "";
     for(const size_t n : nodes) {
         if(nfa.nodes[n].root_tag != "") {
-            if(root_tag != "" && root_tag != nfa.nodes[n].root_tag) throw std::runtime_error("Node has more than one root tag!");
-            root_tag = nfa.nodes[n].root_tag;
+            if(nfa.nodes[n].root_tag != "") {
+                if(root_tag != "") {
+                    if(token_precedence.at(root_tag) > token_precedence.at(nfa.nodes[n].root_tag)) root_tag = nfa.nodes[n].root_tag;
+                    std::cout << "WARNING Multiple root tags for one node. The token which got defined earlier got chosen." << std::endl;
+                } else {
+                    root_tag = nfa.nodes[n].root_tag;
+                }
+            }
         }
     }
 

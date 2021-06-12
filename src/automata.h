@@ -36,8 +36,9 @@ namespace automata {
             static size_t insert_quantifier(automaton& machine, ast::quantifier_branch* b, const size_t origin_node);
             static size_t insert_character(automaton& machine, ast::character_set_branch* b, const size_t origin_node);
             static void add_dfa_connections(const std::vector<std::set<size_t>>& enclosures, automaton& dfa, const automaton& nfa,
-                                     std::map<std::set<size_t>, size_t>& node_ids, const std::set<size_t>& curr);
-            static size_t create_dfa_node(const std::set<size_t>& nodes, const automaton& nfa, automaton& dfa, std::map<std::set<size_t>, size_t>& node_ids);
+                                     std::map<std::set<size_t>, size_t>& node_ids, const std::set<size_t>& curr, const std::map<std::string, size_t>& token_precedence);
+            static size_t create_dfa_node(const std::set<size_t>& nodes, const automaton& nfa, automaton& dfa,
+                                          std::map<std::set<size_t>, size_t>& node_ids, const std::map<std::string, size_t>& token_precedence);
 
             std::vector<std::set<size_t>> compute_epsilon_enclosures();
             std::set<size_t> compute_epsilon_enclosure(const size_t node, const std::set<size_t>& visited = std::set<size_t>{});
@@ -50,6 +51,6 @@ namespace automata {
             ~automaton();
 
             static automaton nfa_from_token_rules(const std::vector<std::pair<std::string, ast::branch*>>& rules);
-            static automaton dfa_from_nfa(automaton nfa);
+            static automaton dfa_from_nfa(automaton nfa, const std::map<std::string, size_t>& token_precedence);
     };
 }

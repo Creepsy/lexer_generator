@@ -6,3 +6,7 @@ build/test.o: test.cpp lexer.h
 
 build/lexer.o: lexer.cpp lexer.h
 	g++ -c lexer.cpp -o build/lexer.o
+
+lexer:
+	cd .. && make
+	./../generator lexer_rules.txt $(PWD)/ lexer

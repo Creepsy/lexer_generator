@@ -1,3 +1,5 @@
+$WHITESPACE [\t\n\r\f\v ]
+INT_IDENT int
 INT \d+
 FLOAT [+-]?(\d*\.\d+|\d+\.)([eE]([+-]?\d+))?
-$WHITESPACE [\t\n\r\f\v ]
+IDENT \w+
