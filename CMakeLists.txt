@@ -14,6 +14,6 @@ set(SOURCE_FILES
     src/automata.h
 )
 
-add_executable(generator src/generator.cpp ${SOURCE_FILES})
+add_executable(lexer_generator src/generator.cpp ${SOURCE_FILES})
 
 add_subdirectory(test)
