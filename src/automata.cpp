@@ -283,7 +283,7 @@ size_t automaton::create_dfa_node(const std::set<size_t>& nodes, const automaton
             if(nfa.nodes[n].root_tag != "") {
                 if(root_tag != "") {
                     if(token_precedence.at(root_tag) > token_precedence.at(nfa.nodes[n].root_tag)) root_tag = nfa.nodes[n].root_tag;
-                    std::cout << "WARNING Multiple root tags for one node. The token which got defined earlier got chosen." << std::endl;
+                    std::cout << "WARNING Multiple root tags for one node. The token defined earlier was chosen." << std::endl;
                 } else {
                     root_tag = nfa.nodes[n].root_tag;
                 }

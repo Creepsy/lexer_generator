@@ -1,13 +1,18 @@
 #include <iostream>
 #include <fstream>
 
-#include "lexer.h"
+#include <lexer.h>
 
-int main() {
-    std::ifstream tests{"test.txt"};
+int main(int argc, char* argv[]) {
+    if(argc != 2) {
+        std::cerr << "Invalid parameters!" << std::endl;
+        return -1;
+    }
+
+    std::ifstream tests{argv[1]};
 
     if(!tests.is_open()) {
-        std::cerr << "Unable to open test.txt!" << std::endl;
+        std::cerr << "Unable to open '" << argv[1] << "'!" << std::endl;
         return -1;
     }
 

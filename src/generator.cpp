@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     lexer_header.close();
     lexer_source.close();
 
-    std::cout << "Header and source file got successfully created!" << std::endl;
+    std::cout << "Header and source file were successfully created!" << std::endl;
 
     return 0;
 }
