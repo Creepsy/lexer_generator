@@ -4,7 +4,7 @@ project(lex_gen_test)
 
 add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/lexer.cpp ${CMAKE_BINARY_DIR}/lexer.h
-    COMMAND generator ${CMAKE_CURRENT_SOURCE_DIR}/lexer_rules.txt ${CMAKE_BINARY_DIR}/ lexer
+    COMMAND lexer_generator ${CMAKE_CURRENT_SOURCE_DIR}/lexer_rules.txt ${CMAKE_BINARY_DIR}/ lexer
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lexer_rules.txt
 )
 
