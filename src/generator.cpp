@@ -129,18 +129,18 @@ void write_ignored_tokens_to_source(std::ofstream& stream, const std::vector<std
 }
 
 void create_header(std::ofstream& stream, const std::string& name, const std::vector<std::pair<std::string, ast::branch*>>& token_rules) {
-    stream << templates::LEXER_HEADER[0];
+    stream << templates::LEXER_HEADER[0] << name << templates::LEXER_HEADER[1];
 
-    stream << "\t\tEND_OF_FILE,\n";
-    stream << "\t\tUNDEFINED,\n";
+    stream << "\t\t\tEND_OF_FILE,\n";
+    stream << "\t\t\tUNDEFINED,\n";
 
     for(size_t r = 0; r < token_rules.size(); r++) {
-        stream << "\t\t" << token_rules[r].first;
+        stream << "\t\t\t" << token_rules[r].first;
         if(r != token_rules.size() - 1) stream << ",";
         stream << '\n';
     }
 
-    for(size_t i = 1; i < templates::LEXER_HEADER.size() - 1; i++) {
+    for(size_t i = 2; i < templates::LEXER_HEADER.size() - 1; i++) {
         stream << templates::LEXER_HEADER[i];
         stream << name;
     }
@@ -149,26 +149,30 @@ void create_header(std::ofstream& stream, const std::string& name, const std::ve
 }
 
 void create_source(const automata::automaton& dfa, std::ofstream& stream, const std::string& name, const bool no_ranges, const std::vector<std::string>& ignored_tokens) {
-    stream << templates::LEXER_SOURCE[0];
-    stream << name << ".h";
-    stream << templates::LEXER_SOURCE[1];
+    stream << templates::LEXER_SOURCE[0] << name << ".h";
+    stream << templates::LEXER_SOURCE[1] << name << templates::LEXER_SOURCE[2];
 
     write_ignored_tokens_to_source(stream, ignored_tokens);
 
-    for(size_t i = 2; i < 6; i++) {
+    for(size_t i = 3; i < 7; i++) {
         stream << templates::LEXER_SOURCE[i];
-        stream << name;
+        stream << name << "::" << name;
     }
 
-    stream << templates::LEXER_SOURCE[6];
+    stream << templates::LEXER_SOURCE[7];
 
     write_dfa_to_source(dfa, stream, name, !no_ranges);
 
 
-    for(size_t i = 7; i < templates::LEXER_SOURCE.size() - 1; i++) {
+    for(size_t i = 8; i < templates::LEXER_SOURCE.size() - 3; i++) {
         stream << templates::LEXER_SOURCE[i];
-        stream << name;
+        stream << name << "::" << name;
     }
 
-    stream << templates::LEXER_SOURCE[11];
+    stream << templates::LEXER_SOURCE[templates::LEXER_SOURCE.size() - 3];
+    stream << name;
+    stream << templates::LEXER_SOURCE[templates::LEXER_SOURCE.size() - 2];
+
+    stream << name << "::" << name;
+    stream << templates::LEXER_SOURCE[templates::LEXER_SOURCE.size() - 1];
 }

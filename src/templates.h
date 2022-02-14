@@ -13,46 +13,50 @@ namespace templates {
         "#include <string>\n"
         "#include <istream>\n"
         "\n"
-        "struct position {\n"
-        "\tsize_t start_line;\n"
-        "\tsize_t start_column;\n"
-        "\tsize_t end_line;\n"
-        "\tsize_t end_column;\n"
-        "};\n"
-        "\n"
-        "struct token {\n"
-        "\tenum token_type {\n",
+        "namespace ",
+
+        " {\n"
+        "\tstruct position {\n"
+        "\t\tsize_t start_line;\n"
+        "\t\tsize_t start_column;\n"
+        "\t\tsize_t end_line;\n"
+        "\t\tsize_t end_column;\n"
+        "\t};\n"
+        "\t\n"
+        "\tstruct token {\n"
+        "\t\tenum token_type {\n",
         
+        "\t\t};\n"
+        "\n"
+        "\t\tstd::string identifier;\n"
+        "\t\ttoken_type type;\n"
+        "\t\tposition pos;\n"
         "\t};\n"
         "\n"
-        "\tstd::string identifier;\n"
-        "\ttoken_type type;\n"
-        "\tposition pos;\n"
-        "};\n"
-        "\n"
-        "class ",
+        "\tclass ",
         
-        " {\n"
-        "\tprivate:\n"
-        "\t\tstd::istream& stream;\n"
+        "\t {\n"
+        "\t\tprivate:\n"
+        "\t\t\tstd::istream& stream;\n"
         "\n"
-        "\t\tsize_t curr_line;\n"
-        "\t\tsize_t curr_column;\n"
+        "\t\t\tsize_t curr_line;\n"
+        "\t\t\tsize_t curr_column;\n"
         "\n"
-        "\t\tchar curr;\n"
+        "\t\t\tchar curr;\n"
         "\n"
-        "\t\tvoid next();\n"
-        "   public:\n"
-        "\t\t",
+        "\t\t\tvoid next();\n"
+        "\t   public:\n"
+        "\t\t\t",
         
         "(std::istream& stream);\n"
-        "\t\tbool end();\n"
-        "\t\ttoken next_token();\n"
-        "\t\ttoken next_unignored_token();\n"
-        "\t\t~",
+        "\t\t\tbool end();\n"
+        "\t\t\ttoken next_token();\n"
+        "\t\t\ttoken next_unignored_token();\n"
+        "\t\t\t~",
         
         "();\n"
-        "};\n"
+        "\t};\n"
+        "}\n"
     };
 
     const std::vector<std::string> LEXER_SOURCE {
@@ -61,6 +65,9 @@ namespace templates {
         "\"\n"
         "\n"
         "#include <set>\n"
+        "using namespace ",
+
+        ";\n"
         "\n"
         "const std::set<token::token_type> IGNORED_TOKENS {\n",
 

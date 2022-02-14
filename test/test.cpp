@@ -16,13 +16,13 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    lexer lex{tests};
+    lexer::lexer lex{tests};
 
     while(true) {
-        token t = lex.next_unignored_token();
+        lexer::token t = lex.next_unignored_token();
         std::cout << t.type << " -> " << t.identifier
                   << ", [" << t.pos.start_line << "," << t.pos.start_column << "] to [" << t.pos.end_line << "," << t.pos.end_column << "]" << std::endl;
-        if(t.type == token::END_OF_FILE) break;
+        if(t.type == lexer::token::END_OF_FILE) break;
     }
 
     return 0;
