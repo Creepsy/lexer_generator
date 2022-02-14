@@ -35,7 +35,7 @@ namespace templates {
         "\n"
         "\tclass ",
         
-        "\t {\n"
+        " {\n"
         "\t\tprivate:\n"
         "\t\t\tstd::istream& stream;\n"
         "\n"
